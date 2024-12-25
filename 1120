@@ -1,0 +1,25 @@
+# 標題一（H1）
+## 標題二（H2）
+### 標題三（H3）
+#### 標題四（H4）
+##### 標題五（H5）
+###### 標題六（H6）
+- 項目一
+- 項目二
+  - 子項目一
+  - 子項目二
+* 項目三
+1. 第一項
+2. 第二項
+   1. 子項目一
+   2. 子項目二
+3. 第三項
+![替代文字](URL)
+這是一個行內程式碼範例：`print("Hello, World!")`
+```python
+def hello_world():
+    print("Hello, World!")
+```
+def hello_world():
+    print("Hello, World!")
+[點擊這裡前往 Google](https://www.google.com)
