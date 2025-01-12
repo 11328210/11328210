@@ -1,0 +1,95 @@
+import pygame  # 匯入 pygame 遊戲模組
+import random  # 匯入 random 模組，用於生成隨機數
+import sys  # 匯入 sys 模組，用於退出程式
+
+# Initialize Pygame
+pygame.init()  # 初始化 Pygame 模組，啟用其內部功能
+
+# Screen dimensions
+WIDTH, HEIGHT = 600, 400  # 定義螢幕寬度和高度
+CELL_SIZE = 20  # 定義每一格的大小
+
+# Colors
+BLACK = (0, 0, 0)  # 黑色，用於背景
+WHITE = (255, 255, 255)  # 白色，預留未使用
+GREEN = (0, 255, 0)  # 綠色，用於蛇的顏色
+RED = (255, 0, 0)  # 紅色，用於食物的顏色
+
+# Set up the screen
+screen = pygame.display.set_mode((WIDTH, HEIGHT))  # 設定遊戲畫面的寬度和高度
+pygame.display.set_caption("Snake Game")  # 設定遊戲的標題
+
+# Clock for controlling frame rate
+clock = pygame.time.Clock()  # 建立一個時鐘物件，用於控制遊戲的更新速度
+
+# Snake and food setup
+snake = [(WIDTH // 2, HEIGHT // 2)]  # 初始化蛇的位置，設定為畫面正中央
+snake_dir = (0, -CELL_SIZE)  # 設定蛇的初始移動方向為向上
+food = [(random.randint(0, (WIDTH // CELL_SIZE) - 1) * CELL_SIZE,  # 隨機生成食物的位置
+         random.randint(0, (HEIGHT // CELL_SIZE) - 1) * CELL_SIZE) for _ in range(5)]
+
+def draw_snake():  # 繪製蛇的函式
+    for segment in snake:  # 遍歷蛇的每一節
+        pygame.draw.rect(screen, GREEN, (*segment, CELL_SIZE, CELL_SIZE))  # 用綠色矩形繪製蛇的節點
+
+def draw_food():  # 繪製食物的函式
+    for f in food:  # 遍歷所有食物的位置
+        pygame.draw.circle(screen, RED, (f[0] + CELL_SIZE // 2, f[1] + CELL_SIZE // 2), CELL_SIZE // 2)  # 用紅色圓形繪製食物
+
+def move_snake():  # 控制蛇移動的函式
+    global snake  # 使用全域變數 snake
+    new_head = (snake[0][0] + snake_dir[0], snake[0][1] + snake_dir[1])  # 計算蛇的新頭部位置
+    snake = [new_head] + snake[:-1]  # 更新蛇的身體結構
+
+def check_collisions():  # 檢查碰撞的函式
+    head = snake[0]  # 獲取蛇的頭部位置
+    if head[0] < 0 or head[1] < 0 or head[0] >= WIDTH or head[1] >= HEIGHT:  # 判斷是否撞到牆壁
+        return "LOSE"
+    if head in snake[1:]:  # 判斷是否撞到自己
+        return "LOSE"
+    return None  # 無碰撞時返回 None
+
+def eat_food():  # 處理吃食物的函式
+    global food  # 使用全域變數 food
+    if snake[0] in food:  # 如果蛇的頭部位置與食物位置重疊
+        food.remove(snake[0])  # 移除被吃掉的食物
+        snake.append(snake[-1])  # 蛇的身體增加一節
+        if not food:  # 如果食物都被吃完
+            return "WIN"  # 返回遊戲勝利
+    return None  # 無食物被吃時返回 None
+
+# Game loop
+running = True  # 遊戲執行狀態的變數
+while running:  # 遊戲主迴圈
+    screen.fill(BLACK)  # 將螢幕背景填充為黑色
+    for event in pygame.event.get():  # 遍歷所有事件
+        if event.type == pygame.QUIT:  # 如果點擊關閉視窗
+            running = False  # 結束遊戲
+        elif event.type == pygame.KEYDOWN:  # 如果按下按鍵
+            if event.key == pygame.K_UP and snake_dir != (0, CELL_SIZE):  # 如果按上鍵且蛇不在向下移動
+                snake_dir = (0, -CELL_SIZE)  # 改變方向為向上
+            elif event.key == pygame.K_DOWN and snake_dir != (0, -CELL_SIZE):  # 如果按下鍵且蛇不在向上移動
+                snake_dir = (0, CELL_SIZE)  # 改變方向為向下
+            elif event.key == pygame.K_LEFT and snake_dir != (CELL_SIZE, 0):  # 如果按左鍵且蛇不在向右移動
+                snake_dir = (-CELL_SIZE, 0)  # 改變方向為向左
+            elif event.key == pygame.K_RIGHT and snake_dir != (-CELL_SIZE, 0):  # 如果按右鍵且蛇不在向左移動
+                snake_dir = (CELL_SIZE, 0)  # 改變方向為向右
+
+    move_snake()  # 呼叫函式控制蛇移動
+    result = check_collisions()  # 檢查碰撞情況
+    if result == "LOSE":  # 如果遊戲失敗
+        print("LOSE")  # 輸出 "LOSE"
+        running = False  # 結束遊戲
+
+    result = eat_food()  # 檢查是否吃到食物
+    if result == "WIN":  # 如果遊戲勝利
+        print("WIN")  # 輸出 "WIN"
+        running = False  # 結束遊戲
+
+    draw_snake()  # 繪製蛇
+    draw_food()  # 繪製食物
+    pygame.display.flip()  # 更新畫面顯示
+    clock.tick(10)  # 控制遊戲更新速度，每秒 10 幀
+
+pygame.quit()  # 結束 Pygame
+sys.exit()  # 結束程式
